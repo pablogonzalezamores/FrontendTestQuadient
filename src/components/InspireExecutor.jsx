@@ -9,7 +9,7 @@ function InspireExecutor() {
     setLoading(true);
     setOutput('');
     try {
-      const res = await axios.get('http://localhost:8080/generar-pdf'); // Ajusta si el endpoint es otro
+      const res = await axios.get('http://localhost:8080/generar-pdf');
       setOutput(res.data);
     } catch (error) {
       setOutput('❌ Error al ejecutar: ' + (error.response?.data || error.message));
@@ -17,6 +17,31 @@ function InspireExecutor() {
       setLoading(false);
     }
   };
+
+  const descargarPDF = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/descargar-pdf', {
+        method: 'GET',
+      });
+  
+      if (!response.ok) throw new Error('Error al descargar el PDF');
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+  
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Output1.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert('❌ No se pudo descargar el PDF');
+      console.error(error);
+    }
+  };
+  
 
   return (
     <div className="p-6 bg-white shadow rounded max-w-xl mx-auto mt-10 text-center">
@@ -34,6 +59,14 @@ function InspireExecutor() {
           {output}
         </pre>
       )}
+
+      <button
+        onClick={descargarPDF}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      >
+        📥 Descargar PDF
+      </button>
+
     </div>
   );
 }
